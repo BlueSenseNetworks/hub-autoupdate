@@ -89,30 +89,30 @@ def main():
     logging.debug('Started update daemon,  interval: ' + update_interval)
     while True:
         try:
-            call('sudo pacman -Sy', shell=True)
+            call('pacman -Sy', shell=True)
             for package, state in packages:
                 if state['ensure'] == 'present':
-                    call('sudo pacman -S --needed --noconfirm ' + package, shell=True)
+                    call('pacman -S --needed --noconfirm ' + package, shell=True)
                 elif state['ensure'] == 'absent':
-                    call('sudo pacman -R --noconfirm ' + package, shell=True)
+                    call('pacman -R --noconfirm ' + package, shell=True)
 
-            call('sudo systemctl daemon-reload', shell=True)
+            call('systemctl daemon-reload', shell=True)
             for service, state in services:
                 print service
                 if state['enabled']:
-                    call('sudo systemctl enable ' + service, shell=True)
+                    call('systemctl enable ' + service, shell=True)
                 else:
-                    call('sudo systemctl disable ' + service, shell=True)
+                    call('systemctl disable ' + service, shell=True)
 
                 if 'ensure' in state:
                     if state['ensure'] == 'started' and args.start:
                         if 'restart' in state and state['restart']:
-                            call('sudo systemctl restart ' + service, shell=True)
+                            call('systemctl restart ' + service, shell=True)
                         else:
-                            call('sudo systemctl start ' + service, shell=True)
+                            call('systemctl start ' + service, shell=True)
 
                     if state['ensure'] == 'stopped':
-                        call('sudo systemctl stop ' + service, shell=True)
+                        call('systemctl stop ' + service, shell=True)
         except Exception, ex:
             print ex
 
