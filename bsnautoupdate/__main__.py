@@ -85,6 +85,19 @@ def main():
     config = ConfigParser.ConfigParser()
     config.read(config_file)
     update_interval = config.get('Update', 'interval')
+    stability = config.get('Update', 'stability')
+
+    if stability == 'production':
+        repo_path = 'http://packages.bluesense.co'
+    else:
+        repo_path = 'http://' + stability + '-packages.bluesense.co'
+
+    logging.debug('Setting package repository to: ' + repo_path)
+    call('sed -i \'s/Server = .*bluesense.co$/Server = ' + repo_path.replace('/', '\/') + '/g\' /etc/pacman.conf',
+         shell=True)
+
+    logging.debug('Setting node environment to: ' + stability)
+    call('export NODE_ENV=' + stability, shell=True)
 
     logging.debug('Started update daemon,  interval: ' + update_interval)
     while True:
