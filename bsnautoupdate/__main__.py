@@ -119,7 +119,7 @@ def main():
         if args.onetime:
             break
 
-        sleep(update_interval)
+        sleep(float(update_interval))
 
 
 if __name__ == "__main__":
