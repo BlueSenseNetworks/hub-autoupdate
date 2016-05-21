@@ -85,6 +85,10 @@ def main():
     update_interval = config.get('Update', 'interval')
     stability = config.get('Update', 'stability')
 
+    environment = [
+        ('NODE_ENV', stability)
+    ]
+
     if stability == 'production':
         repo_path = 'http://packages.bluesense.co'
     else:
@@ -94,8 +98,17 @@ def main():
     call('sed -i \'s/Server = .*bluesense.co$/Server = ' + repo_path.replace('/', '\/') + '/g\' /etc/pacman.conf',
          shell=True)
 
-    logging.info('Setting node environment to: ' + stability)
-    call('export NODE_ENV=' + stability, shell=True)
+    logging.info('Setting environment')
+    for key, value in environment:
+        logging.info('Setting ' + key + ' to: ' + stability)
+        call(
+            "grep -q '^{option}' {file} && sed -i 's/^{option}.*/{option}={value}/' {file} || echo '{option}={value}' >> {file}".format(
+                option=key,
+                file='/etc/environment',
+                value=value
+            ),
+            shell=True
+        )
 
     logging.info('Started update daemon,  interval: ' + update_interval)
     while True:
@@ -111,7 +124,6 @@ def main():
 
             call('systemctl daemon-reload', shell=True)
             for service, state in services:
-                print service
                 if state['enabled']:
                     logging.info('Enabling service: ' + service)
                     call('systemctl enable ' + service, shell=True)
