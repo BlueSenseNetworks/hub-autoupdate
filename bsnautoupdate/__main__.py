@@ -64,13 +64,11 @@ def main():
         }),
         ('bsn-status-page.service', {
             'ensure': 'started',
-            'enabled': True,
-            'restart': True
+            'enabled': True
         }),
         ('bsn-supernode.service', {
             'ensure': 'started',
-            'enabled': True,
-            'restart': True
+            'enabled': True
         })
     ]
 
@@ -119,10 +117,7 @@ def main():
 
                 if 'ensure' in state:
                     if state['ensure'] == 'started' and args.start:
-                        if 'restart' in state and state['restart']:
-                            call('systemctl restart ' + service, shell=True)
-                        else:
-                            call('systemctl start ' + service, shell=True)
+                        call('systemctl start ' + service, shell=True)
 
                     if state['ensure'] == 'stopped':
                         call('systemctl stop ' + service, shell=True)
