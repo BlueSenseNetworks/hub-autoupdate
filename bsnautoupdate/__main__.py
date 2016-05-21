@@ -90,36 +90,42 @@ def main():
     else:
         repo_path = 'http://' + stability + '-packages.bluesense.co'
 
-    logging.debug('Setting package repository to: ' + repo_path)
+    logging.info('Setting package repository to: ' + repo_path)
     call('sed -i \'s/Server = .*bluesense.co$/Server = ' + repo_path.replace('/', '\/') + '/g\' /etc/pacman.conf',
          shell=True)
 
-    logging.debug('Setting node environment to: ' + stability)
+    logging.info('Setting node environment to: ' + stability)
     call('export NODE_ENV=' + stability, shell=True)
 
-    logging.debug('Started update daemon,  interval: ' + update_interval)
+    logging.info('Started update daemon,  interval: ' + update_interval)
     while True:
         try:
             call('pacman -Sy', shell=True)
             for package, state in packages:
                 if state['ensure'] == 'present':
+                    logging.info('Syncing package: ' + package)
                     call('pacman -S --needed --noconfirm ' + package, shell=True)
                 elif state['ensure'] == 'absent':
+                    logging.info('Removing package: ' + package)
                     call('pacman -R --noconfirm ' + package, shell=True)
 
             call('systemctl daemon-reload', shell=True)
             for service, state in services:
                 print service
                 if state['enabled']:
+                    logging.info('Enabling service: ' + service)
                     call('systemctl enable ' + service, shell=True)
                 else:
+                    logging.info('Disabling service: ' + service)
                     call('systemctl disable ' + service, shell=True)
 
                 if 'ensure' in state:
                     if state['ensure'] == 'started' and args.start:
+                        logging.info('Starting service: ' + service)
                         call('systemctl start ' + service, shell=True)
 
                     if state['ensure'] == 'stopped':
+                        logging.info('Stopping service: ' + service)
                         call('systemctl stop ' + service, shell=True)
         except Exception, ex:
             print ex
