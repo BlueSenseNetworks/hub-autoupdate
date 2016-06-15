@@ -73,6 +73,10 @@ def main():
         ('bsn-supernode.service', {
             'ensure': 'started',
             'enabled': True
+        }),
+        ('redis.service', {
+            'ensure': 'started',
+            'enabled': True
         })
     ]
 
