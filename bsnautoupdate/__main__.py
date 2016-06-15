@@ -46,6 +46,10 @@ def main():
         ('bsn-firstboot.service', {
             'enabled': True
         }),
+        ('bluetooth.service', {
+            'ensure': 'started',
+            'enabled': True
+        }),
         ('bluetooth-auto-power@hci0.service', {
             'ensure': 'started',
             'enabled': True
